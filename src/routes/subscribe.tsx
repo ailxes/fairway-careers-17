@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { subscribe } from "@/lib/subscribe";
+import { SponsorSlot } from "@/components/SponsorSlot";
 import { buildMeta, SITE_NAME } from "@/lib/seo";
 
 export const Route = createFileRoute("/subscribe")({
@@ -88,6 +89,10 @@ function SubscribePage() {
               <p className="text-sm text-muted-foreground leading-relaxed">{b.body}</p>
             </div>
           ))}
+        </div>
+
+        <div className="mt-12">
+          <SponsorSlot placement="newsletter" />
         </div>
       </section>
       <Footer />

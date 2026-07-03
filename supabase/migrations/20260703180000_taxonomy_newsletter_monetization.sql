@@ -23,7 +23,7 @@ ALTER TABLE public.subscribers ADD CONSTRAINT subscribers_email_unique UNIQUE (e
 -- Listing orders: employer upgrade requests (Featured / Featured+Newsletter). v1 = invoice manually.
 CREATE TABLE IF NOT EXISTS public.listing_orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  tier TEXT NOT NULL CHECK (tier IN ('featured', 'featured_newsletter')),
+  tier TEXT NOT NULL, -- e.g. 'featured', 'featured_newsletter', or comma list of upsell keys
   job_id UUID REFERENCES public.jobs(id) ON DELETE SET NULL,
   employer_name TEXT NOT NULL,
   contact_email TEXT NOT NULL,

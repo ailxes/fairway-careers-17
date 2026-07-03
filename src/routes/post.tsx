@@ -1,19 +1,30 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { PERK_META, slugify, formatComp } from "@/lib/jobs";
+import { CATEGORIES } from "@/lib/taxonomy";
+import { buildMeta, SITE_NAME } from "@/lib/seo";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/post")({
+  head: () => ({
+    meta: buildMeta({
+      title: `Post a Golf Job — free listing | ${SITE_NAME}`,
+      description:
+        "Post your golf job in 3 minutes. Free basic listings, optional featured placement and Friday Digest newsletter reach. Human-reviewed within 24h.",
+      path: "/post",
+    }),
+  }),
   component: PostJob,
 });
 
 const schema = z.object({
   title: z.string().trim().min(3).max(120),
   employer: z.string().trim().min(2).max(120),
+  contact_email: z.string().email().max(200),
   location: z.string().trim().min(2).max(120),
   role_category: z.string().min(1),
   job_type: z.enum(["seasonal", "year-round", "tour", "remote"]),
@@ -25,7 +36,7 @@ const schema = z.object({
   photo_url: z.string().url().max(500).optional().or(z.literal("")),
 });
 
-const ROLES = ["Caddie", "Professional", "Operations", "Sales", "Media", "Retail", "Hospitality", "Marketing", "Fitting"];
+const ROLES = CATEGORIES.map((c) => c.name);
 const UPSELLS = [
   { key: "highlight", label: "Highlight color", price: 49 },
   { key: "pin", label: "Pin to top for 14 days", price: 149 },
@@ -38,6 +49,7 @@ function PostJob() {
   const [form, setForm] = useState({
     title: "",
     employer: "",
+    contact_email: "",
     location: "",
     role_category: "Professional",
     job_type: "year-round" as const,
@@ -76,6 +88,7 @@ function PostJob() {
       location: parsed.data.location,
       role_category: parsed.data.role_category,
       job_type: parsed.data.job_type,
+      is_remote: parsed.data.job_type === "remote",
       comp_min: parsed.data.comp_min ?? null,
       comp_max: parsed.data.comp_max ?? null,
       comp_notes: parsed.data.comp_notes ?? null,
@@ -86,13 +99,34 @@ function PostJob() {
       is_featured: !!upsells.pin,
       status: "pending",
     });
-    setSubmitting(false);
     if (error) {
+      setSubmitting(false);
       toast.error(error.message);
       return;
     }
-    toast.success("Submitted. Our editor will review within 24h.");
+
+    // Record the upgrade request so it can be invoiced — selections must
+    // never evaporate after submit (there is no Stripe flow yet; v1 is
+    // "we email you an invoice").
+    const chosen = UPSELLS.filter((u) => upsells[u.key]);
+    if (chosen.length > 0) {
+      await supabase.from("listing_orders").insert({
+        tier: chosen.map((u) => u.key).join(","),
+        employer_name: parsed.data.employer,
+        contact_email: parsed.data.contact_email,
+        notes: `Job: "${parsed.data.title}" · ${chosen.map((u) => `${u.label} $${u.price}`).join(" + ")} · Total $${upsellTotal}`,
+        status: "pending",
+      });
+    }
+
+    setSubmitting(false);
+    toast.success(
+      chosen.length > 0
+        ? "Submitted. We'll review within 24h and email your invoice for the boosts."
+        : "Submitted. Our editor will review within 24h.",
+    );
     setForm({ ...form, title: "", description: "", apply_url: "" });
+    setUpsells({});
   }
 
   return (
@@ -116,6 +150,9 @@ function PostJob() {
             </Field>
             <Field label="Employer">
               <input required value={form.employer} onChange={(e) => setForm({ ...form, employer: e.target.value })} className={inputCls} placeholder="Bandon Dunes" />
+            </Field>
+            <Field label="Your email (for review status & any boosts)">
+              <input required type="email" value={form.contact_email} onChange={(e) => setForm({ ...form, contact_email: e.target.value })} className={inputCls} placeholder="you@company.com" />
             </Field>
             <Field label="Location">
               <input required value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} className={inputCls} placeholder="Bandon, OR" />
@@ -201,10 +238,10 @@ function PostJob() {
               disabled={submitting}
               className="w-full bg-accent text-accent-foreground py-4 rounded-xl font-semibold text-lg hover:brightness-105 transition disabled:opacity-60"
             >
-              {submitting ? "Submitting…" : upsellTotal > 0 ? `Continue to checkout ($${upsellTotal})` : "Submit for review"}
+              {submitting ? "Submitting…" : upsellTotal > 0 ? `Submit with boosts ($${upsellTotal})` : "Submit for review"}
             </button>
             <p className="text-xs text-muted-foreground text-center">
-              Basic posts free. Human review within 24h. Upsells billed via Stripe.
+              Basic posts free. Human review within 24h. Boosts invoiced by email — nothing charged now.
             </p>
           </form>
 
@@ -246,10 +283,10 @@ function PostJob() {
                 </div>
               </div>
               {upsells.newsletter && (
-                <p className="mt-3 text-xs text-accent">✦ Included in Friday newsletter blast to 12k+ subscribers</p>
+                <p className="mt-3 text-xs text-accent">✦ Included in the Friday Digest newsletter</p>
               )}
               {upsells.social && (
-                <p className="mt-1 text-xs text-accent">✦ Featured on our Instagram + TikTok</p>
+                <p className="mt-1 text-xs text-accent">✦ Featured on our social channels</p>
               )}
             </div>
           </div>

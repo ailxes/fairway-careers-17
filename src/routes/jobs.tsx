@@ -7,6 +7,7 @@ import { JobCard } from "@/components/JobCard";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { subscribe } from "@/lib/subscribe";
+import { SponsorSlot } from "@/components/SponsorSlot";
 import { toast } from "sonner";
 
 const searchSchema = z.object({
@@ -193,6 +194,10 @@ function JobsPage() {
           {activeFilters > 0 && filtered.length > 0 && (
             <SavedSearchBar search={search} />
           )}
+
+          <div className="mt-8">
+            <SponsorSlot placement="site" />
+          </div>
         </div>
       </div>
 
