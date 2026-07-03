@@ -14,16 +14,221 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      employers: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          perks_summary: string | null
+          photos: string[] | null
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          perks_summary?: string | null
+          photos?: string[] | null
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          perks_summary?: string | null
+          photos?: string[] | null
+          slug?: string
+        }
+        Relationships: []
+      }
+      job_views: {
+        Row: {
+          id: string
+          job_id: string
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          job_id: string
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          job_id?: string
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_views_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      jobs: {
+        Row: {
+          apply_url: string | null
+          city: string | null
+          comp_max: number | null
+          comp_min: number | null
+          comp_notes: string | null
+          cool_label: string | null
+          cool_score: number | null
+          created_at: string
+          description: string | null
+          employer: string
+          employer_slug: string | null
+          expires_at: string | null
+          id: string
+          is_featured: boolean | null
+          is_featured_weekly: boolean | null
+          job_type: string | null
+          lat: number | null
+          lng: number | null
+          location: string | null
+          perks: string[] | null
+          photo_url: string | null
+          posted_at: string
+          role_category: string | null
+          source: string | null
+          source_url: string | null
+          state: string | null
+          status: string
+          title: string
+          views: number
+          weekly_rank: number | null
+        }
+        Insert: {
+          apply_url?: string | null
+          city?: string | null
+          comp_max?: number | null
+          comp_min?: number | null
+          comp_notes?: string | null
+          cool_label?: string | null
+          cool_score?: number | null
+          created_at?: string
+          description?: string | null
+          employer: string
+          employer_slug?: string | null
+          expires_at?: string | null
+          id?: string
+          is_featured?: boolean | null
+          is_featured_weekly?: boolean | null
+          job_type?: string | null
+          lat?: number | null
+          lng?: number | null
+          location?: string | null
+          perks?: string[] | null
+          photo_url?: string | null
+          posted_at?: string
+          role_category?: string | null
+          source?: string | null
+          source_url?: string | null
+          state?: string | null
+          status?: string
+          title: string
+          views?: number
+          weekly_rank?: number | null
+        }
+        Update: {
+          apply_url?: string | null
+          city?: string | null
+          comp_max?: number | null
+          comp_min?: number | null
+          comp_notes?: string | null
+          cool_label?: string | null
+          cool_score?: number | null
+          created_at?: string
+          description?: string | null
+          employer?: string
+          employer_slug?: string | null
+          expires_at?: string | null
+          id?: string
+          is_featured?: boolean | null
+          is_featured_weekly?: boolean | null
+          job_type?: string | null
+          lat?: number | null
+          lng?: number | null
+          location?: string | null
+          perks?: string[] | null
+          photo_url?: string | null
+          posted_at?: string
+          role_category?: string | null
+          source?: string | null
+          source_url?: string | null
+          state?: string | null
+          status?: string
+          title?: string
+          views?: number
+          weekly_rank?: number | null
+        }
+        Relationships: []
+      }
+      subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          saved_search: Json | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          saved_search?: Json | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          saved_search?: Json | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +355,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const
