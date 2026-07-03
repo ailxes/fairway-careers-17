@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { JobCard } from "@/components/JobCard";
+import { NewsletterSignup } from "@/components/NewsletterSignup";
 
 export const Route = createFileRoute("/jobs/$id")({
   loader: async ({ params }) => {
@@ -55,18 +56,32 @@ function JobDetail() {
     .filter((j) => j.id !== job.id && (j.role_category === job.role_category || j.state === job.state))
     .slice(0, 3);
 
+  // Google for Jobs eligibility: validThrough + identifier + remote signals
+  // are what separate "indexed" from "shown in the jobs widget".
+  const validThrough =
+    job.expires_at ?? new Date(+new Date(job.posted_at) + 45 * 86400000).toISOString();
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "JobPosting",
     title: job.title,
     description: job.description,
     datePosted: job.posted_at,
-    employmentType: (job.job_type ?? "").toUpperCase(),
+    validThrough,
+    identifier: { "@type": "PropertyValue", name: job.employer, value: job.id },
+    employmentType: (job.job_type ?? "").toUpperCase().replace("-", "_"),
     hiringOrganization: { "@type": "Organization", name: job.employer },
-    jobLocation: {
-      "@type": "Place",
-      address: { "@type": "PostalAddress", addressLocality: job.city, addressRegion: job.state, addressCountry: "US" },
-    },
+    directApply: false,
+    ...(job.is_remote
+      ? {
+          jobLocationType: "TELECOMMUTE",
+          applicantLocationRequirements: { "@type": "Country", name: "USA" },
+        }
+      : {
+          jobLocation: {
+            "@type": "Place",
+            address: { "@type": "PostalAddress", addressLocality: job.city, addressRegion: job.state, addressCountry: "US" },
+          },
+        }),
     baseSalary: job.comp_min
       ? {
           "@type": "MonetaryAmount",
@@ -145,18 +160,25 @@ function JobDetail() {
         </div>
 
         <aside className="lg:col-span-1">
-          <div className="lg:sticky lg:top-24 bg-fairway text-cream rounded-2xl p-6 space-y-4">
-            <p className="text-cream/60 text-xs uppercase tracking-widest">Ready to send it?</p>
-            <a
-              href={job.apply_url ?? "#"}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block w-full bg-accent text-accent-foreground font-semibold text-center px-6 py-4 rounded-xl hover:brightness-105 transition"
-            >
-              Apply now →
-            </a>
-            <p className="text-xs text-cream/50">Applies at {job.employer}. No cover letter needed.</p>
-            <p className="text-xs text-cream/40">Posted {timeAgo(job.posted_at)} · {job.views} views</p>
+          <div className="lg:sticky lg:top-24 space-y-4">
+            <div className="bg-fairway text-cream rounded-2xl p-6 space-y-4">
+              <p className="text-cream/60 text-xs uppercase tracking-widest">Ready to send it?</p>
+              <a
+                href={job.apply_url ?? "#"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full bg-accent text-accent-foreground font-semibold text-center px-6 py-4 rounded-xl hover:brightness-105 transition"
+              >
+                Apply now →
+              </a>
+              <p className="text-xs text-cream/50">Applies at {job.employer}. No cover letter needed.</p>
+              <p className="text-xs text-cream/40">Posted {timeAgo(job.posted_at)} · {job.views} views</p>
+            </div>
+            <NewsletterSignup
+              sourcePage={`job-${job.id}`}
+              heading="Not this one? Get Friday's five."
+              subtext="The 5 coolest golf jobs each week, in your inbox. Free."
+            />
           </div>
         </aside>
       </div>

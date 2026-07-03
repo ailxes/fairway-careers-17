@@ -26,6 +26,7 @@ export type Job = {
   status: string;
   views: number;
   posted_at: string;
+  expires_at?: string | null;
   // Added by the taxonomy migration — optional so the app still runs pre-migration
   is_remote?: boolean;
   tags?: string[];

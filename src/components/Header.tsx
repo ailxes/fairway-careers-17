@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { SITE_NAME } from "@/lib/seo";
 
 export function Header({ transparent = false }: { transparent?: boolean }) {
   return (
@@ -14,7 +15,7 @@ export function Header({ transparent = false }: { transparent?: boolean }) {
           <span
             className={`text-xl font-bold tracking-tight ${transparent ? "text-cream" : "text-fairway"}`}
           >
-            Cool Golf Jobs
+            {SITE_NAME}
           </span>
           <span className="text-accent font-serif text-xl leading-none">·</span>
         </Link>
@@ -24,6 +25,12 @@ export function Header({ transparent = false }: { transparent?: boolean }) {
             className={`hover:text-accent transition-colors ${transparent ? "text-cream/90" : "text-fairway"}`}
           >
             Browse Jobs
+          </Link>
+          <Link
+            to="/subscribe"
+            className={`hover:text-accent transition-colors ${transparent ? "text-cream/90" : "text-fairway"}`}
+          >
+            Newsletter
           </Link>
           <Link
             to="/post"

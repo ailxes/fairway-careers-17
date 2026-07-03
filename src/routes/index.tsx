@@ -1,12 +1,27 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { fetchLiveJobs, fetchWeeklyFive, type Job } from "@/lib/jobs";
+import { COLLECTIONS as CURATED_COLLECTIONS } from "@/lib/taxonomy";
+import { buildMeta, SITE_NAME, SITE_TAGLINE } from "@/lib/seo";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import heroImg from "@/assets/hero-fairway.jpg";
 
 export const Route = createFileRoute("/")({
+  // SSR loader (not client useQuery): the homepage is the highest-traffic
+  // entry page — jobs must be in the first HTML byte for crawlers.
+  loader: async () => {
+    const [jobs, weekly] = [await fetchLiveJobs(), await fetchWeeklyFive()];
+    return { jobs, weekly };
+  },
+  head: () => ({
+    meta: buildMeta({
+      title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+      description:
+        "The searchable directory of the coolest jobs in golf. Caddie gigs, tour media, brand and engineering roles — real comp always shown. Plus the Friday Digest newsletter.",
+      path: "/",
+    }),
+  }),
   component: Home,
 });
 
@@ -26,8 +41,7 @@ const COLLECTIONS = [
 
 function Home() {
   const [q, setQ] = useState("");
-  const { data: jobs } = useQuery({ queryKey: ["jobs-live"], queryFn: fetchLiveJobs });
-  const { data: weekly } = useQuery({ queryKey: ["jobs-weekly"], queryFn: fetchWeeklyFive });
+  const { jobs, weekly } = Route.useLoaderData();
   const count = jobs?.length ?? 0;
 
   const states = Array.from(new Set((jobs ?? []).map((j) => j.state).filter(Boolean))) as string[];
@@ -97,7 +111,7 @@ function Home() {
           </span>
         </div>
         <p className="text-muted-foreground max-w-xl italic mb-12">
-          "It's Friday. Apply to these now so you can chill this weekend."
+          Five hand-picked roles worth interrupting your range session for. New list every Friday.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
@@ -186,6 +200,28 @@ function Home() {
                   </Link>
                 ))}
               </div>
+            </div>
+          </div>
+
+          <div className="mt-16">
+            <h3 className="text-cream/60 text-xs font-bold uppercase tracking-widest mb-4">Collections</h3>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                to="/remote-golf-jobs"
+                className="text-cream/90 bg-cream/5 hover:bg-cream/15 px-4 py-2 rounded-full text-sm font-medium transition"
+              >
+                Remote Golf Jobs
+              </Link>
+              {CURATED_COLLECTIONS.map((c) => (
+                <Link
+                  key={c.slug}
+                  to="/collections/$slug"
+                  params={{ slug: c.slug }}
+                  className="text-cream/90 bg-cream/5 hover:bg-cream/15 px-4 py-2 rounded-full text-sm font-medium transition"
+                >
+                  {c.title}
+                </Link>
+              ))}
             </div>
           </div>
         </div>

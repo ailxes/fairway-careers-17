@@ -6,7 +6,7 @@ import { fetchLiveJobs, PERK_META, type Job } from "@/lib/jobs";
 import { JobCard } from "@/components/JobCard";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { supabase } from "@/integrations/supabase/client";
+import { subscribe } from "@/lib/subscribe";
 import { toast } from "sonner";
 
 const searchSchema = z.object({
@@ -15,6 +15,7 @@ const searchSchema = z.object({
   role: z.string().optional(),
   type: z.string().optional(),
   perk: z.string().optional(),
+  remote: z.boolean().optional(),
   sort: z.enum(["newest", "cool", "pay"]).optional(),
 });
 
@@ -49,6 +50,7 @@ function JobsPage() {
     if (search.role) arr = arr.filter((j) => j.role_category === search.role);
     if (search.type) arr = arr.filter((j) => j.job_type === search.type);
     if (search.perk) arr = arr.filter((j) => (j.perks ?? []).includes(search.perk!));
+    if (search.remote) arr = arr.filter((j) => j.is_remote);
 
     if (search.sort === "cool") arr.sort((a, b) => (b.cool_score ?? 0) - (a.cool_score ?? 0));
     else if (search.sort === "pay")
@@ -125,6 +127,18 @@ function JobsPage() {
             </div>
           )}
           <div className="lg:sticky lg:top-24 space-y-8">
+            <div>
+              <h4 className="font-semibold uppercase tracking-wider text-xs text-muted-foreground mb-3">Location type</h4>
+              <button
+                onClick={() => setSearch({ remote: search.remote ? undefined : true })}
+                className={`w-full flex justify-between items-center text-sm font-medium py-1 transition ${search.remote ? "text-accent" : "hover:text-accent"}`}
+              >
+                <span>Remote only</span>
+                <span className={search.remote ? "text-accent/70" : "text-muted-foreground"}>
+                  {jobs.filter((j) => j.is_remote).length}
+                </span>
+              </button>
+            </div>
             <FilterGroup
               title="State"
               options={Object.entries(counts.state)}
@@ -230,9 +244,9 @@ function SavedSearchBar({ search }: { search: Record<string, unknown> }) {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.from("subscribers").insert({ email, saved_search: search as never });
+    const res = await subscribe(email, "jobs-saved-search", search);
     setLoading(false);
-    if (error) toast.error("Try again.");
+    if (!res.ok) toast.error("Try again.");
     else {
       toast.success("Saved. We'll email you when matches drop.");
       setEmail("");

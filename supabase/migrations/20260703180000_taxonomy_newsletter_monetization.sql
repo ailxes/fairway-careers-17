@@ -12,11 +12,13 @@ ALTER TABLE public.subscribers
   ADD COLUMN IF NOT EXISTS source_page TEXT,
   ADD COLUMN IF NOT EXISTS confirmed BOOLEAN NOT NULL DEFAULT true;
 
--- Dedupe any existing duplicate emails before adding the unique index
+-- Normalize emails, dedupe, then enforce uniqueness on the plain column so
+-- PostgREST upsert (onConflict: 'email') can target it. Clients lowercase at write time.
+UPDATE public.subscribers SET email = lower(email);
 DELETE FROM public.subscribers a
   USING public.subscribers b
   WHERE a.email = b.email AND a.created_at > b.created_at;
-CREATE UNIQUE INDEX IF NOT EXISTS idx_subscribers_email ON public.subscribers(lower(email));
+ALTER TABLE public.subscribers ADD CONSTRAINT subscribers_email_unique UNIQUE (email);
 
 -- Listing orders: employer upgrade requests (Featured / Featured+Newsletter). v1 = invoice manually.
 CREATE TABLE IF NOT EXISTS public.listing_orders (

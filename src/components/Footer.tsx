@@ -1,25 +1,22 @@
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Link } from "@tanstack/react-router";
+import { subscribe } from "@/lib/subscribe";
+import { SITE_NAME } from "@/lib/seo";
 
 export function Footer() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function subscribe(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.includes("@")) {
-      toast.error("Real email please.");
-      return;
-    }
     setLoading(true);
-    const { error } = await supabase.from("subscribers").insert({ email, saved_search: null });
+    const res = await subscribe(email, "footer");
     setLoading(false);
-    if (error) {
-      toast.error("Something went wrong. Try again.");
+    if (!res.ok) {
+      toast.error("That email didn't take. Try again?");
     } else {
-      toast.success("You're in. Friday digest incoming.");
+      toast.success(res.already ? "You're already on the list. See you Friday." : "You're in. Friday digest incoming.");
       setEmail("");
     }
   }
@@ -33,10 +30,7 @@ export function Footer() {
         <p className="text-cream/70 text-lg mb-10 max-w-[48ch] mx-auto">
           The 5 coolest jobs of the week, one gear rec, and a playlist for the range. Zero spam.
         </p>
-        <form
-          onSubmit={subscribe}
-          className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
-        >
+        <form onSubmit={onSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
           <input
             type="email"
             required
@@ -55,12 +49,16 @@ export function Footer() {
         </form>
 
         <div className="mt-20 pt-10 border-t border-cream/10 flex flex-col md:flex-row justify-between items-center gap-6 text-cream/40 text-xs font-medium tracking-wider">
-          <div className="flex gap-8">
+          <div className="flex flex-wrap justify-center gap-x-8 gap-y-3">
             <Link to="/jobs" className="hover:text-accent transition">BROWSE</Link>
+            <Link to="/remote-golf-jobs" className="hover:text-accent transition">REMOTE</Link>
+            <Link to="/collections/$slug" params={{ slug: "women-in-golf" }} className="hover:text-accent transition">WOMEN IN GOLF</Link>
+            <Link to="/collections/$slug" params={{ slug: "internships" }} className="hover:text-accent transition">INTERNSHIPS</Link>
+            <Link to="/subscribe" className="hover:text-accent transition">NEWSLETTER</Link>
             <Link to="/post" className="hover:text-accent transition">POST A JOB</Link>
             <Link to="/admin" className="hover:text-accent transition">ADMIN</Link>
           </div>
-          <p>© 2026 COOL GOLF JOBS · PLAY AWAY</p>
+          <p>© 2026 {SITE_NAME.toUpperCase()} · PLAY AWAY</p>
         </div>
       </div>
     </footer>

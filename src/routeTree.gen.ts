@@ -9,15 +9,42 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SubscribeRouteImport } from './routes/subscribe'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as RemoteGolfJobsRouteImport } from './routes/remote-golf-jobs'
 import { Route as PostRouteImport } from './routes/post'
 import { Route as JobsRouteImport } from './routes/jobs'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as JobsIdRouteImport } from './routes/jobs.$id'
+import { Route as GolfJobsCategoryRouteImport } from './routes/golf-jobs.$category'
+import { Route as GolfJobsInStateRouteImport } from './routes/golf-jobs-in.$state'
 import { Route as EmployerSlugRouteImport } from './routes/employer.$slug'
+import { Route as CollectionsSlugRouteImport } from './routes/collections.$slug'
 import { Route as JobsStateRoleRouteImport } from './routes/jobs.$state.$role'
 
+const SubscribeRoute = SubscribeRouteImport.update({
+  id: '/subscribe',
+  path: '/subscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RemoteGolfJobsRoute = RemoteGolfJobsRouteImport.update({
+  id: '/remote-golf-jobs',
+  path: '/remote-golf-jobs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PostRoute = PostRouteImport.update({
   id: '/post',
   path: '/post',
@@ -48,9 +75,24 @@ const JobsIdRoute = JobsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => JobsRoute,
 } as any)
+const GolfJobsCategoryRoute = GolfJobsCategoryRouteImport.update({
+  id: '/golf-jobs/$category',
+  path: '/golf-jobs/$category',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GolfJobsInStateRoute = GolfJobsInStateRouteImport.update({
+  id: '/golf-jobs-in/$state',
+  path: '/golf-jobs-in/$state',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EmployerSlugRoute = EmployerSlugRouteImport.update({
   id: '/employer/$slug',
   path: '/employer/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CollectionsSlugRoute = CollectionsSlugRouteImport.update({
+  id: '/collections/$slug',
+  path: '/collections/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const JobsStateRoleRoute = JobsStateRoleRouteImport.update({
@@ -65,7 +107,14 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/jobs': typeof JobsRouteWithChildren
   '/post': typeof PostRoute
+  '/remote-golf-jobs': typeof RemoteGolfJobsRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/subscribe': typeof SubscribeRoute
+  '/collections/$slug': typeof CollectionsSlugRoute
   '/employer/$slug': typeof EmployerSlugRoute
+  '/golf-jobs-in/$state': typeof GolfJobsInStateRoute
+  '/golf-jobs/$category': typeof GolfJobsCategoryRoute
   '/jobs/$id': typeof JobsIdRoute
   '/jobs/$state/$role': typeof JobsStateRoleRoute
 }
@@ -75,7 +124,14 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/jobs': typeof JobsRouteWithChildren
   '/post': typeof PostRoute
+  '/remote-golf-jobs': typeof RemoteGolfJobsRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/subscribe': typeof SubscribeRoute
+  '/collections/$slug': typeof CollectionsSlugRoute
   '/employer/$slug': typeof EmployerSlugRoute
+  '/golf-jobs-in/$state': typeof GolfJobsInStateRoute
+  '/golf-jobs/$category': typeof GolfJobsCategoryRoute
   '/jobs/$id': typeof JobsIdRoute
   '/jobs/$state/$role': typeof JobsStateRoleRoute
 }
@@ -86,7 +142,14 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/jobs': typeof JobsRouteWithChildren
   '/post': typeof PostRoute
+  '/remote-golf-jobs': typeof RemoteGolfJobsRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/subscribe': typeof SubscribeRoute
+  '/collections/$slug': typeof CollectionsSlugRoute
   '/employer/$slug': typeof EmployerSlugRoute
+  '/golf-jobs-in/$state': typeof GolfJobsInStateRoute
+  '/golf-jobs/$category': typeof GolfJobsCategoryRoute
   '/jobs/$id': typeof JobsIdRoute
   '/jobs/$state/$role': typeof JobsStateRoleRoute
 }
@@ -98,7 +161,14 @@ export interface FileRouteTypes {
     | '/auth'
     | '/jobs'
     | '/post'
+    | '/remote-golf-jobs'
+    | '/robots.txt'
+    | '/sitemap.xml'
+    | '/subscribe'
+    | '/collections/$slug'
     | '/employer/$slug'
+    | '/golf-jobs-in/$state'
+    | '/golf-jobs/$category'
     | '/jobs/$id'
     | '/jobs/$state/$role'
   fileRoutesByTo: FileRoutesByTo
@@ -108,7 +178,14 @@ export interface FileRouteTypes {
     | '/auth'
     | '/jobs'
     | '/post'
+    | '/remote-golf-jobs'
+    | '/robots.txt'
+    | '/sitemap.xml'
+    | '/subscribe'
+    | '/collections/$slug'
     | '/employer/$slug'
+    | '/golf-jobs-in/$state'
+    | '/golf-jobs/$category'
     | '/jobs/$id'
     | '/jobs/$state/$role'
   id:
@@ -118,7 +195,14 @@ export interface FileRouteTypes {
     | '/auth'
     | '/jobs'
     | '/post'
+    | '/remote-golf-jobs'
+    | '/robots.txt'
+    | '/sitemap.xml'
+    | '/subscribe'
+    | '/collections/$slug'
     | '/employer/$slug'
+    | '/golf-jobs-in/$state'
+    | '/golf-jobs/$category'
     | '/jobs/$id'
     | '/jobs/$state/$role'
   fileRoutesById: FileRoutesById
@@ -129,11 +213,46 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   JobsRoute: typeof JobsRouteWithChildren
   PostRoute: typeof PostRoute
+  RemoteGolfJobsRoute: typeof RemoteGolfJobsRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  SubscribeRoute: typeof SubscribeRoute
+  CollectionsSlugRoute: typeof CollectionsSlugRoute
   EmployerSlugRoute: typeof EmployerSlugRoute
+  GolfJobsInStateRoute: typeof GolfJobsInStateRoute
+  GolfJobsCategoryRoute: typeof GolfJobsCategoryRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/subscribe': {
+      id: '/subscribe'
+      path: '/subscribe'
+      fullPath: '/subscribe'
+      preLoaderRoute: typeof SubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/remote-golf-jobs': {
+      id: '/remote-golf-jobs'
+      path: '/remote-golf-jobs'
+      fullPath: '/remote-golf-jobs'
+      preLoaderRoute: typeof RemoteGolfJobsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/post': {
       id: '/post'
       path: '/post'
@@ -176,11 +295,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof JobsIdRouteImport
       parentRoute: typeof JobsRoute
     }
+    '/golf-jobs/$category': {
+      id: '/golf-jobs/$category'
+      path: '/golf-jobs/$category'
+      fullPath: '/golf-jobs/$category'
+      preLoaderRoute: typeof GolfJobsCategoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/golf-jobs-in/$state': {
+      id: '/golf-jobs-in/$state'
+      path: '/golf-jobs-in/$state'
+      fullPath: '/golf-jobs-in/$state'
+      preLoaderRoute: typeof GolfJobsInStateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/employer/$slug': {
       id: '/employer/$slug'
       path: '/employer/$slug'
       fullPath: '/employer/$slug'
       preLoaderRoute: typeof EmployerSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/collections/$slug': {
+      id: '/collections/$slug'
+      path: '/collections/$slug'
+      fullPath: '/collections/$slug'
+      preLoaderRoute: typeof CollectionsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/jobs/$state/$role': {
@@ -211,8 +351,25 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   JobsRoute: JobsRouteWithChildren,
   PostRoute: PostRoute,
+  RemoteGolfJobsRoute: RemoteGolfJobsRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
+  SubscribeRoute: SubscribeRoute,
+  CollectionsSlugRoute: CollectionsSlugRoute,
   EmployerSlugRoute: EmployerSlugRoute,
+  GolfJobsInStateRoute: GolfJobsInStateRoute,
+  GolfJobsCategoryRoute: GolfJobsCategoryRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

@@ -19,6 +19,7 @@ import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { SITE_NAME, SITE_TAGLINE } from "../lib/seo";
 
 function NotFoundComponent() {
   return (
@@ -73,13 +74,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Cool Golf Jobs — Work where you'd rather be playing." },
+      { title: `${SITE_NAME} — ${SITE_TAGLINE}` },
       {
         name: "description",
         content:
           "The premium directory of the coolest jobs in golf. Caddies, pros, tour media, brand roles. No cover letters. Photo-first. Comp always shown.",
       },
-      { property: "og:title", content: "Cool Golf Jobs — Work where you'd rather be playing." },
+      { property: "og:title", content: `${SITE_NAME} — ${SITE_TAGLINE}` },
       {
         property: "og:description",
         content:
