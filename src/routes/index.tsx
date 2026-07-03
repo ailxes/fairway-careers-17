@@ -93,7 +93,7 @@ function Home() {
             <div className="mt-6 flex items-center gap-3">
               <span className="flex h-2 w-2 rounded-full bg-accent animate-pulse" />
               <p className="text-cream/90 font-medium tracking-wide text-sm">
-                {count} COOL GOLF JOBS LIVE RIGHT NOW
+                {count} COOL JOBS LIVE RIGHT NOW
               </p>
             </div>
           </div>

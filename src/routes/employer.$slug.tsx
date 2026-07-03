@@ -15,13 +15,13 @@ export const Route = createFileRoute("/employer/$slug")({
     return { employer, jobs: (jobs ?? []) as Job[] };
   },
   head: ({ loaderData }) => {
-    if (!loaderData) return { meta: [{ title: "Employer — Cool Golf Jobs" }] };
+    if (!loaderData) return { meta: [{ title: "Employer — Tee Up Jobs" }] };
     const e = loaderData.employer;
     return {
       meta: [
-        { title: `${e.name} — Cool Golf Jobs` },
+        { title: `${e.name} — Tee Up Jobs` },
         { name: "description", content: e.description ?? `Open roles at ${e.name}.` },
-        { property: "og:title", content: `${e.name} — Cool Golf Jobs` },
+        { property: "og:title", content: `${e.name} — Tee Up Jobs` },
       ],
     };
   },

@@ -15,9 +15,9 @@ export const Route = createFileRoute("/jobs/$id")({
     return { job };
   },
   head: ({ loaderData }) => {
-    if (!loaderData) return { meta: [{ title: "Job — Cool Golf Jobs" }] };
+    if (!loaderData) return { meta: [{ title: "Job — Tee Up Jobs" }] };
     const j = loaderData.job;
-    const title = `${j.title} at ${j.employer} — Cool Golf Jobs`;
+    const title = `${j.title} at ${j.employer} — Tee Up Jobs`;
     const desc = (j.description ?? "").slice(0, 155);
     return {
       meta: [

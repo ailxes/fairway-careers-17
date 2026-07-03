@@ -21,9 +21,9 @@ export const Route = createFileRoute("/jobs/$state/$role")({
     return { jobs: data as Job[], state, role };
   },
   head: ({ loaderData }) => {
-    if (!loaderData) return { meta: [{ title: "Jobs — Cool Golf Jobs" }] };
+    if (!loaderData) return { meta: [{ title: "Jobs — Tee Up Jobs" }] };
     const { state, role, jobs } = loaderData;
-    const title = `${role} Golf Jobs in ${state} — ${jobs.length} live | Cool Golf Jobs`;
+    const title = `${role} Golf Jobs in ${state} — ${jobs.length} live | Tee Up Jobs`;
     const desc = `${jobs.length} ${role.toLowerCase()} jobs in golf in ${state}. Real comp, real perks, no cover letters.`;
     return {
       meta: [

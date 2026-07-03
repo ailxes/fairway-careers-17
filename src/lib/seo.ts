@@ -3,7 +3,7 @@
  * site name and canonical domain are single-line changes (branding is still
  * an open decision — see README note in repo root).
  */
-export const SITE_NAME = "Cool Golf Jobs";
+export const SITE_NAME = "Tee Up Jobs";
 export const SITE_TAGLINE = "Work where you'd rather be playing.";
 
 // Canonical absolute origin for sitemap/OG URLs. Override in .env with
