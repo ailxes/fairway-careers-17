@@ -51,7 +51,7 @@ function EmployerPage() {
           {jobs.length} open role{jobs.length === 1 ? "" : "s"}
         </h2>
         <div className="space-y-4">
-          {jobs.map((j) => (
+          {jobs.map((j: Job) => (
             <JobCard job={j} key={j.id} />
           ))}
         </div>

@@ -124,7 +124,7 @@ function JobDetail() {
             <div>
               <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Perks</h2>
               <div className="flex flex-wrap gap-2">
-                {(job.perks ?? []).map((p) => {
+                {(job.perks ?? []).map((p: string) => {
                   const meta = PERK_META[p];
                   if (!meta) return null;
                   return (

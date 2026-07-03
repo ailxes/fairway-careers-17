@@ -32,7 +32,7 @@ function JobsPage() {
   });
 
   const setSearch = (patch: Partial<typeof search>) =>
-    navigate({ search: (prev) => ({ ...prev, ...patch }) as never });
+    navigate({ search: (prev: Record<string, unknown>) => ({ ...prev, ...patch }) as never });
 
   const filtered = useMemo(() => {
     let arr = jobs.slice();
@@ -230,7 +230,7 @@ function SavedSearchBar({ search }: { search: Record<string, unknown> }) {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.from("subscribers").insert({ email, saved_search: search });
+    const { error } = await supabase.from("subscribers").insert({ email, saved_search: search as never });
     setLoading(false);
     if (error) toast.error("Try again.");
     else {

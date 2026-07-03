@@ -49,7 +49,7 @@ export const Route = createFileRoute("/jobs/$state/$role")({
 
 function SeoJobsPage() {
   const { jobs, state, role } = Route.useLoaderData();
-  const pays = jobs.map((j) => j.comp_max ?? j.comp_min ?? 0).filter((n) => n > 0);
+  const pays = jobs.map((j: Job) => j.comp_max ?? j.comp_min ?? 0).filter((n: number) => n > 0);
   const minPay = pays.length ? Math.min(...pays) : null;
   const maxPay = pays.length ? Math.max(...pays) : null;
 
@@ -70,7 +70,7 @@ function SeoJobsPage() {
         </p>
 
         <div className="space-y-4">
-          {jobs.map((j) => (
+          {jobs.map((j: Job) => (
             <JobCard job={j} key={j.id} />
           ))}
         </div>
