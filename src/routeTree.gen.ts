@@ -9,38 +9,159 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PostRouteImport } from './routes/post'
+import { Route as JobsRouteImport } from './routes/jobs'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as JobsIdRouteImport } from './routes/jobs.$id'
+import { Route as EmployerSlugRouteImport } from './routes/employer.$slug'
+import { Route as JobsStateRoleRouteImport } from './routes/jobs.$state.$role'
 
+const PostRoute = PostRouteImport.update({
+  id: '/post',
+  path: '/post',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JobsRoute = JobsRouteImport.update({
+  id: '/jobs',
+  path: '/jobs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const JobsIdRoute = JobsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => JobsRoute,
+} as any)
+const EmployerSlugRoute = EmployerSlugRouteImport.update({
+  id: '/employer/$slug',
+  path: '/employer/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JobsStateRoleRoute = JobsStateRoleRouteImport.update({
+  id: '/$state/$role',
+  path: '/$state/$role',
+  getParentRoute: () => JobsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/auth': typeof AuthRoute
+  '/jobs': typeof JobsRouteWithChildren
+  '/post': typeof PostRoute
+  '/employer/$slug': typeof EmployerSlugRoute
+  '/jobs/$id': typeof JobsIdRoute
+  '/jobs/$state/$role': typeof JobsStateRoleRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/auth': typeof AuthRoute
+  '/jobs': typeof JobsRouteWithChildren
+  '/post': typeof PostRoute
+  '/employer/$slug': typeof EmployerSlugRoute
+  '/jobs/$id': typeof JobsIdRoute
+  '/jobs/$state/$role': typeof JobsStateRoleRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/auth': typeof AuthRoute
+  '/jobs': typeof JobsRouteWithChildren
+  '/post': typeof PostRoute
+  '/employer/$slug': typeof EmployerSlugRoute
+  '/jobs/$id': typeof JobsIdRoute
+  '/jobs/$state/$role': typeof JobsStateRoleRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/auth'
+    | '/jobs'
+    | '/post'
+    | '/employer/$slug'
+    | '/jobs/$id'
+    | '/jobs/$state/$role'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/admin'
+    | '/auth'
+    | '/jobs'
+    | '/post'
+    | '/employer/$slug'
+    | '/jobs/$id'
+    | '/jobs/$state/$role'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/auth'
+    | '/jobs'
+    | '/post'
+    | '/employer/$slug'
+    | '/jobs/$id'
+    | '/jobs/$state/$role'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
+  AuthRoute: typeof AuthRoute
+  JobsRoute: typeof JobsRouteWithChildren
+  PostRoute: typeof PostRoute
+  EmployerSlugRoute: typeof EmployerSlugRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/post': {
+      id: '/post'
+      path: '/post'
+      fullPath: '/post'
+      preLoaderRoute: typeof PostRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/jobs': {
+      id: '/jobs'
+      path: '/jobs'
+      fullPath: '/jobs'
+      preLoaderRoute: typeof JobsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +169,50 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/jobs/$id': {
+      id: '/jobs/$id'
+      path: '/$id'
+      fullPath: '/jobs/$id'
+      preLoaderRoute: typeof JobsIdRouteImport
+      parentRoute: typeof JobsRoute
+    }
+    '/employer/$slug': {
+      id: '/employer/$slug'
+      path: '/employer/$slug'
+      fullPath: '/employer/$slug'
+      preLoaderRoute: typeof EmployerSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/jobs/$state/$role': {
+      id: '/jobs/$state/$role'
+      path: '/$state/$role'
+      fullPath: '/jobs/$state/$role'
+      preLoaderRoute: typeof JobsStateRoleRouteImport
+      parentRoute: typeof JobsRoute
+    }
   }
 }
 
+interface JobsRouteChildren {
+  JobsIdRoute: typeof JobsIdRoute
+  JobsStateRoleRoute: typeof JobsStateRoleRoute
+}
+
+const JobsRouteChildren: JobsRouteChildren = {
+  JobsIdRoute: JobsIdRoute,
+  JobsStateRoleRoute: JobsStateRoleRoute,
+}
+
+const JobsRouteWithChildren = JobsRoute._addFileChildren(JobsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
+  AuthRoute: AuthRoute,
+  JobsRoute: JobsRouteWithChildren,
+  PostRoute: PostRoute,
+  EmployerSlugRoute: EmployerSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
