@@ -87,9 +87,11 @@ export type Database = {
           employer: string
           employer_slug: string | null
           expires_at: string | null
+          experience_level: string | null
           id: string
           is_featured: boolean | null
           is_featured_weekly: boolean | null
+          is_remote: boolean
           job_type: string | null
           lat: number | null
           lng: number | null
@@ -102,6 +104,7 @@ export type Database = {
           source_url: string | null
           state: string | null
           status: string
+          tags: string[]
           title: string
           views: number
           weekly_rank: number | null
@@ -119,9 +122,11 @@ export type Database = {
           employer: string
           employer_slug?: string | null
           expires_at?: string | null
+          experience_level?: string | null
           id?: string
           is_featured?: boolean | null
           is_featured_weekly?: boolean | null
+          is_remote?: boolean
           job_type?: string | null
           lat?: number | null
           lng?: number | null
@@ -134,6 +139,7 @@ export type Database = {
           source_url?: string | null
           state?: string | null
           status?: string
+          tags?: string[]
           title: string
           views?: number
           weekly_rank?: number | null
@@ -151,9 +157,11 @@ export type Database = {
           employer?: string
           employer_slug?: string | null
           expires_at?: string | null
+          experience_level?: string | null
           id?: string
           is_featured?: boolean | null
           is_featured_weekly?: boolean | null
+          is_remote?: boolean
           job_type?: string | null
           lat?: number | null
           lng?: number | null
@@ -166,30 +174,105 @@ export type Database = {
           source_url?: string | null
           state?: string | null
           status?: string
+          tags?: string[]
           title?: string
           views?: number
           weekly_rank?: number | null
         }
         Relationships: []
       }
+      listing_orders: {
+        Row: {
+          contact_email: string
+          created_at: string
+          employer_name: string
+          id: string
+          job_id: string | null
+          notes: string | null
+          status: string
+          tier: string
+        }
+        Insert: {
+          contact_email: string
+          created_at?: string
+          employer_name: string
+          id?: string
+          job_id?: string | null
+          notes?: string | null
+          status?: string
+          tier: string
+        }
+        Update: {
+          contact_email?: string
+          created_at?: string
+          employer_name?: string
+          id?: string
+          job_id?: string | null
+          notes?: string | null
+          status?: string
+          tier?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_orders_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sponsor_leads: {
+        Row: {
+          company: string
+          contact_email: string
+          created_at: string
+          id: string
+          message: string | null
+          placement: string | null
+        }
+        Insert: {
+          company: string
+          contact_email: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          placement?: string | null
+        }
+        Update: {
+          company?: string
+          contact_email?: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          placement?: string | null
+        }
+        Relationships: []
+      }
       subscribers: {
         Row: {
+          confirmed: boolean
           created_at: string
           email: string
           id: string
           saved_search: Json | null
+          source_page: string | null
         }
         Insert: {
+          confirmed?: boolean
           created_at?: string
           email: string
           id?: string
           saved_search?: Json | null
+          source_page?: string | null
         }
         Update: {
+          confirmed?: boolean
           created_at?: string
           email?: string
           id?: string
           saved_search?: Json | null
+          source_page?: string | null
         }
         Relationships: []
       }
