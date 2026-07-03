@@ -104,12 +104,12 @@ function coolScore(cat, title) {
 // Rows where the "employer" is actually a job board are dropped — listing
 // "GolfJobs.com" as an employer on our board is wrong data AND free
 // advertising for a competitor.
-const BOARD_EMPLOYERS = /golfjobs\.com|gcsaa|superintendents association|indeed|ziprecruiter|bebee|jobleads|linkedin|monster/i;
+const BOARD_EMPLOYERS = /golfjobs\.com|gcsaa|superintendents association|indeed|ziprecruiter|bebee|jobleads|linkedin|monster|upwork|agmgolf/i;
 
 // Apply links: Google Jobs results include spam mirrors ("apply on
 // random-hotel-site.it"). Only accept direct-apply links or known networks;
 // a job nobody can apply to is not inventory, so linkless rows are dropped.
-const TRUSTED_APPLY = /indeed\.com|ziprecruiter\.com|linkedin\.com|glassdoor\.com|monster\.com|careerbuilder\.com|gcsaa\.org|makegolfyourcareer\.org|teamworkonline\.com|governmentjobs\.com|usajobs\.gov|applytojob\.com|jazzhr|workday|greenhouse\.io|lever\.co|paylocity|paycom|adp\.com/i;
+const TRUSTED_APPLY = /indeed\.com|ziprecruiter\.com|linkedin\.com|glassdoor\.com|monster\.com|careerbuilder\.com|gcsaa\.org|agmgolf\.org|makegolfyourcareer\.org|teamworkonline\.com|governmentjobs\.com|usajobs\.gov|applytojob\.com|jazzhr|workday|greenhouse\.io|lever\.co|paylocity|paycom|adp\.com|dickssportinggoods\.jobs/i;
 
 // Employer-owned ATS beats aggregator re-listings — applicants land on the
 // company's real posting, and those links rot slowest.
@@ -186,9 +186,38 @@ function normalize(item) {
 }
 
 // ---- main ----
-const file = process.argv[2];
-if (!file) throw new Error("Usage: node insert-pending.mjs items.json");
-const items = JSON.parse(readFileSync(resolve(file), "utf8"));
+// Two modes:
+//   node insert-pending.mjs items.json                  (local file)
+//   node insert-pending.mjs --dataset <id> [<id> ...]   (fetch straight from
+//     Apify — requires APIFY_TOKEN in .env.local, .env, or the environment;
+//     get one at apify.com → Settings → API tokens. Zero manual copying.)
+let items = [];
+if (process.argv[2] === "--dataset") {
+  const token =
+    process.env.APIFY_TOKEN ??
+    (() => {
+      try {
+        const local = readFileSync(resolve(root, ".env.local"), "utf8");
+        return local.match(/^APIFY_TOKEN=["']?([^"'\n]+)/m)?.[1];
+      } catch {
+        return env.APIFY_TOKEN;
+      }
+    })();
+  if (!token) throw new Error("APIFY_TOKEN not found. Add it to .env.local (gitignored) — apify.com → Settings → API tokens.");
+  const ids = process.argv.slice(3);
+  if (ids.length === 0) throw new Error("Usage: node insert-pending.mjs --dataset <id> [<id> ...]");
+  for (const id of ids) {
+    const res = await fetch(`https://api.apify.com/v2/datasets/${id}/items?clean=true&token=${token}`);
+    if (!res.ok) throw new Error(`Dataset ${id} fetch failed: ${res.status}`);
+    const batch = await res.json();
+    console.log(`Dataset ${id}: ${batch.length} items`);
+    items.push(...batch);
+  }
+} else {
+  const file = process.argv[2];
+  if (!file) throw new Error("Usage: node insert-pending.mjs <items.json | --dataset id...>");
+  items = JSON.parse(readFileSync(resolve(file), "utf8"));
+}
 
 const headers = { apikey: KEY, Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" };
 
