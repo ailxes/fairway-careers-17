@@ -2,7 +2,8 @@ import "@fontsource/instrument-sans/400.css";
 import "@fontsource/instrument-sans/500.css";
 import "@fontsource/instrument-sans/600.css";
 import "@fontsource/instrument-sans/700.css";
-import "@fontsource-variable/fraunces";
+import "@fontsource-variable/fraunces/index.css";
+import "@fontsource-variable/fraunces/opsz-italic.css";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
