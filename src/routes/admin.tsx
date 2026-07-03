@@ -96,6 +96,16 @@ function AdminDashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab]);
 
+  async function approveAll() {
+    if (!window.confirm(`Approve all ${jobs.length} pending jobs? They go live immediately.`)) return;
+    const { error } = await supabase.from("jobs").update({ status: "live" }).eq("status", "pending");
+    if (error) toast.error(error.message);
+    else {
+      toast.success(`${jobs.length} jobs approved.`);
+      load();
+    }
+  }
+
   async function approve(id: string) {
     const { error } = await supabase.from("jobs").update({ status: "live" }).eq("id", id);
     if (error) toast.error(error.message);
@@ -234,6 +244,14 @@ function AdminDashboard() {
                 {l.message && <p className="text-muted-foreground mt-1">{l.message}</p>}
               </div>
             ))}
+          </div>
+        )}
+
+        {tab === "pending" && jobs.length > 1 && (
+          <div className="flex justify-end mb-4">
+            <button onClick={approveAll} className="bg-fairway text-cream px-4 py-2 rounded-lg text-sm font-semibold">
+              Approve all ({jobs.length})
+            </button>
           </div>
         )}
 
