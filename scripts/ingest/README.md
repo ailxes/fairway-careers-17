@@ -1,57 +1,71 @@
-# Job Ingestion Pipeline
+# Job Ingestion — automated + manual
 
-How Tee Up Jobs gets inventory at scale without scraping competitor boards:
-Google's job index already aggregates golfjobs.com, Make Golf Your Career
-(PGA), GCSAA, Workday/ATS postings, and every major board. We pull from that
-public index, normalize into our taxonomy, quality-gate, and human-review.
+Tee Up Jobs fills its board from Google's public job index (which already
+aggregates golfjobs.com, the PGA's Make Golf Your Career board, GCSAA,
+TeamWork Online, and every employer ATS). We normalize into our own taxonomy,
+quality-gate, and either auto-publish or stage for review. We do **not** mirror
+any competitor board (that would be duplicate content + kill our SEO).
 
-## The two-step run
+## The automated pipeline (set-and-forget, MWF)
 
-**1. Discover** — run the Apify actor `johnvc/google-jobs-scraper---pay-per-result`
-($0.014/job — the cheap $0.003 actor returns empty apply links, don't use it).
-Input per run:
+`.github/workflows/ingest.yml` runs `harvest.mjs` **Mon/Wed/Fri at 13:00 UTC**
+in GitHub's cloud — no server, no laptop needed. Each run:
 
-```json
-{ "query": "golf course superintendent", "location": "Arizona", "country": "us", "num_results": 40, "max_pagination": 4 }
-```
+1. Scrapes the demand-weighted category queries (brand marketing, merchandising,
+   engineering, content, superintendent, pro, internships) + a rotating geo
+   slice (so the whole country gets covered across the week).
+2. Normalizes + quality-gates (shared `lib.mjs`).
+3. Dedupes against everything already in the DB.
+4. **Publishes:** employer-ATS / golf-board sources go **live** automatically;
+   big-general-board-only jobs are staged **pending** for optional review.
+5. **Expires** auto-ingested jobs older than 45 days so the board stays fresh.
 
-Query menu for coverage (rotate; add a location to get city/state data —
-nationwide runs often return location: "United States" which can't feed the
-state hub pages):
-golf course superintendent · golf professional · golf sales representative ·
-golf marketing · golf caddie · golf instructor · golf internship ·
-golf media content · golf engineer
+### One-time setup (required for the automation to run)
 
-**2. Insert** — save the dataset items to a JSON file, then:
+Add three repository secrets in GitHub → **Settings → Secrets and variables →
+Actions → New repository secret**:
+
+| Secret | Where to get it |
+|---|---|
+| `APIFY_TOKEN` | apify.com → Settings → API tokens |
+| `SUPABASE_URL` | your `VITE_SUPABASE_URL` value |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Settings → API → `service_role` key |
+
+> The service-role key bypasses row security so the job can publish. It lives
+> only in GitHub's encrypted secrets — never commit it. Rotate anytime in Supabase.
+
+Then: Actions tab → "Harvest golf jobs (MWF)" → **Run workflow** to test it now.
+After that it fires automatically MWF.
+
+**Cost:** ~$0.014/job scraped via Apify; a MWF run is ~$1–2, ~$15–25/month.
+
+### Tuning
+- `AUTOPUBLISH_AGGREGATORS: "true"` in the workflow → publish big-board jobs live too (default quarantines them as pending).
+- Edit `EVERGREEN_QUERIES` / `GEO_SLICES` in `harvest.mjs` to change coverage.
+- `EXPIRE_AFTER_DAYS` env → freshness window (default 45).
+
+## Manual backfill (stage for review)
+
+`insert-pending.mjs` stages jobs as **pending** (safe, uses the anon key):
 
 ```bash
-node scripts/ingest/insert-pending.mjs scripts/ingest/data/<file>.json
+node scripts/ingest/insert-pending.mjs some-jobs.json          # from a file
+node scripts/ingest/insert-pending.mjs --dataset <apifyId>...  # from Apify (needs APIFY_TOKEN in .env.local)
 ```
 
-Everything lands as `status='pending'` → review in `/admin` (bulk "Approve
-all" exists, but skim titles first — the gates are good, not perfect).
+Review + approve in `/admin`.
 
-## Quality gates (in insert-pending.mjs)
+## Local run of the full harvester
 
-- **Board-as-employer dropped**: rows whose "employer" is GolfJobs.com/GCSAA/
-  Indeed etc. are bad data + free competitor advertising.
-- **No trusted apply link → dropped**: Google results include spam mirror
-  domains; we accept direct-apply, employer ATS (Workday/Greenhouse/Lever/
-  Taleo/JazzHR/GovernmentJobs...), then major boards (Indeed/ZipRecruiter/
-  LinkedIn/Glassdoor/Monster). A job nobody can apply to is not inventory.
-- **Dedupe** vs live board (title+employer, source_url) and within batch.
-- **Salary hygiene**: hourly wages go to comp_notes, never rendered as annual.
-- **Empty descriptions** get a minimal template so pages/JSON-LD aren't blank —
-  enrich the keepers in admin.
+To run the automated harvester by hand (e.g. a big backfill), put the three
+secrets in `.env.local` (gitignored) and:
 
-## Costs (observed)
+```bash
+node scripts/ingest/harvest.mjs
+```
 
-- ~$0.014/job discovered; ~60–80% survive the gates.
-- 200-job weekly refresh ≈ $3. The 42-job researched seed cost ~20 min of
-  agent time; this does 10x the volume for pocket change.
-
-## Upgrade path (not built yet)
-
-Add `APIFY_TOKEN` to `.env` (apify.com → Settings → API tokens) and this can
-become one command (actor call + dataset fetch + insert) on a weekly cron.
-Until then, runs go through Claude via the Apify MCP.
+## Quality gates (lib.mjs)
+- **Board-as-employer dropped** (GolfJobs.com, Upwork, aggregators listed as the employer).
+- **No trusted apply link → dropped** (spam mirror domains never make it in).
+- **Source confidence:** employer ATS / golf boards = `high` (auto-publish); big general boards = `aggregator` (quarantine).
+- **Salary hygiene** (hourly never rendered as annual), **dedupe**, **auto-tagging** (internships/no-experience).

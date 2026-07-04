@@ -1,0 +1,31 @@
+name: Harvest golf jobs (MWF)
+
+# Runs automatically Mon/Wed/Fri at 13:00 UTC (~9am ET). No servers, no laptop —
+# GitHub runs it in the cloud. Also runnable on demand from the Actions tab.
+on:
+  schedule:
+    - cron: "0 13 * * 1,3,5"
+  workflow_dispatch: {}
+
+# Prevent overlapping runs if one is slow.
+concurrency:
+  group: ingest
+  cancel-in-progress: false
+
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Run harvester
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          # Flip to "true" if you want big-board jobs auto-published too
+          AUTOPUBLISH_AGGREGATORS: "false"
+        run: node scripts/ingest/harvest.mjs
