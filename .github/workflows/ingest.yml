@@ -26,6 +26,6 @@ jobs:
           APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
           VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          # Flip to "true" if you want big-board jobs auto-published too
-          AUTOPUBLISH_AGGREGATORS: "false"
+          # Big-board (aggregator) jobs auto-publish too, not just quarantine.
+          AUTOPUBLISH_AGGREGATORS: "true"
         run: node scripts/ingest/harvest.mjs
