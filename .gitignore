@@ -33,3 +33,6 @@ dist-ssr
 package-lock.json
 scripts/ingest/data/
 .env.local
+.vercel
+
+.env
