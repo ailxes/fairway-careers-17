@@ -266,23 +266,14 @@ function MiniJobCard({ job }: { job: Job }) {
     <Link
       to="/jobs/$id"
       params={{ id: job.id }}
-      className="block bg-card rounded-2xl overflow-hidden ring-1 ring-border hover:ring-fairway/30 hover:-translate-y-0.5 transition-all"
+      className="block bg-card rounded-2xl p-5 ring-1 ring-border hover:ring-fairway/30 hover:-translate-y-0.5 transition-all"
     >
-      <div className="h-40 overflow-hidden bg-muted">
-        {job.photo_url && (
-          <img
-            src={job.photo_url}
-            alt={job.title}
-            loading="lazy"
-            className="h-full w-full object-cover"
-          />
-        )}
-      </div>
-      <div className="p-5">
-        <h4 className="font-semibold text-lg leading-tight mb-1">{job.title}</h4>
-        <p className="text-sm text-fairway/70">{job.employer}</p>
-        <p className="text-xs text-muted-foreground mt-1">{job.location}</p>
-      </div>
+      <h4 className="font-semibold text-lg leading-tight mb-1 group-hover:text-accent">{job.title}</h4>
+      <p className="text-sm text-fairway/70">{job.employer}</p>
+      <p className="text-xs text-muted-foreground mt-0.5">{job.location}</p>
+      {job.description && (
+        <p className="text-sm text-muted-foreground leading-relaxed mt-3 line-clamp-2">{job.description}</p>
+      )}
     </Link>
   );
 }
