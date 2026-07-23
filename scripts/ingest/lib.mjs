@@ -3,6 +3,9 @@
 // scraped Google-Jobs item becomes a Tee Up Jobs row, and which sources we
 // trust enough to auto-publish.
 import { readFileSync } from "node:fs";
+// Editorial scoring lives in cool-score.mjs (shared with the content engine).
+import { coolScore, cleanEmployer } from "./cool-score.mjs";
+export { coolScore, cleanEmployer };
 
 // ---- env ----
 // Reads .env.local first (gitignored — secrets like APIFY_TOKEN and the
@@ -72,20 +75,25 @@ export function parseLocation(loc) {
   return { city, state, location: parts.join(", ") || null };
 }
 
+// Nationwide-query results carry the SEARCH location ("United States"), not the
+// job's. The real city usually appears in the description ("located in Coyote
+// Springs, NV"). Conservative fallback: City, ST with a valid state code.
+export function locationFromDescription(desc) {
+  if (!desc) return null;
+  const m = /([A-Z][A-Za-z.'-]+(?: [A-Z][A-Za-z.'-]+){0,3}),\s*([A-Z]{2})\b/.exec(desc.slice(0, 400));
+  if (!m || !STATE_MAP[m[2]]) return null;
+  // Trim cross-sentence captures ("GOLFTEC. Englewood" → "Englewood") but keep
+  // legit abbreviated city names (St. Louis, Ft. Myers, Mt. Pleasant).
+  const city = m[1].replace(/^(?:.*?(?<!\b(?:St|Ft|Mt))\.\s+)/, "");
+  return `${city}, ${m[2]}`;
+}
+
 function autoTags(title, jobType) {
   const t = `${title} ${jobType ?? ""}`.toLowerCase();
   const tags = [];
   if (/intern/.test(t)) tags.push("internships");
   if (/no experience|entry level|entry-level|trainee/.test(t)) tags.push("no-experience");
   return tags;
-}
-
-function coolScore(cat, title) {
-  let s = 74;
-  if (/augusta|pebble|pinehurst|bandon|\btpc\b|pga tour|desert mountain|whistling straits|kiawah/i.test(title)) s += 14;
-  if (["Media", "Caddie", "Architecture"].includes(cat)) s += 8;
-  if (["Engineering", "Instruction"].includes(cat)) s += 5;
-  return Math.min(s, 96);
 }
 
 // Employer field is actually a job board / marketplace → bad data + free ads
@@ -126,12 +134,16 @@ export function sourceConfidence(url) {
 // a jobs row, or return null to drop it. Adds `_confidence` for the caller.
 export function normalize(item) {
   const title = item.title;
-  const employer = item.companyName ?? item.company_name ?? item.employer;
-  if (!title || !employer) return null;
-  if (BOARD_EMPLOYERS.test(employer)) return null;
+  const rawEmployer = item.companyName ?? item.company_name ?? item.employer;
+  if (!title || !rawEmployer) return null;
+  if (BOARD_EMPLOYERS.test(rawEmployer)) return null;
+  const employer = cleanEmployer(rawEmployer);
 
   const ext = item.detected_extensions ?? {};
-  const { city, state, location } = parseLocation(item.location);
+  const rawLoc = /united states|usa/i.test(item.location ?? "")
+    ? locationFromDescription(item.description) ?? item.location
+    : item.location;
+  const { city, state, location } = parseLocation(rawLoc);
   const remote = Boolean(item.workFromHome ?? ext.work_from_home) || /anywhere|remote/i.test(item.location ?? "");
   const applyLink = pickApplyLink(item);
   if (!applyLink) return null; // a job nobody can apply to is not inventory
@@ -171,7 +183,7 @@ export function normalize(item) {
     apply_url: applyLink,
     source: `google-jobs${(item.postedVia ?? item.via) ? ` via ${item.postedVia ?? item.via}` : ""}`,
     source_url: item.share_link ?? applyLink,
-    cool_score: coolScore(cat, title),
+    cool_score: coolScore({ title, employer, category: cat, comp_min }),
     tags: autoTags(title, item.jobType ?? ext.schedule_type),
   };
 }
