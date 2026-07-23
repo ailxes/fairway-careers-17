@@ -80,8 +80,9 @@ export function buildOverlayHtml({ topic, jobs, date, starts: startsIn, duration
            padding: 12px 24px; border-radius: 12px; transform: rotate(-3deg);
            box-shadow: 0 8px 40px rgba(0,0,0,.35); }
   .employer { position: absolute; top: 142px; left: 210px; right: 56px; color: #fff;
-              font-weight: 900; font-size: 52px; line-height: 1.05; text-transform: uppercase;
-              text-shadow: 0 2px 8px rgba(0,0,0,.45); }
+              font-weight: 900; font-size: 52px; line-height: 1.15; text-transform: uppercase;
+              background: rgba(0,0,0,.75); padding: 10px 20px; border-radius: 12px;
+              width: fit-content; max-width: 760px; }
   .card-body { position: absolute; top: 288px; left: 56px; right: 56px; }
   .job-title { background: ${TOKENS.panel};
                color: ${TOKENS.ink}; border-radius: 24px; padding: 28px 32px; font-weight: 900;

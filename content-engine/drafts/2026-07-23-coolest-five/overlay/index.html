@@ -18,7 +18,7 @@
   /* Top-band card stack — never near the mouth zone */
   .job-card { padding: 120px 56px 0; }
   .badge { position: absolute; top: 120px; left: 56px; width: 128px; height: 128px; border-radius: 28px;
-           background: #3EE6A0; color: #0E0E0E; font-family: 'Archivo Black', 'Anton', system-ui, sans-serif;
+           background: #3EE6A0; color: #0E0E0E; font-family: 'Archivo Black', system-ui, sans-serif;
            font-size: 84px; display: grid; place-items: center;
            box-shadow: 0 8px 40px rgba(0,0,0,.35); }
   .badge-gold { background: #FBBC04; }
@@ -27,8 +27,9 @@
            padding: 12px 24px; border-radius: 12px; transform: rotate(-3deg);
            box-shadow: 0 8px 40px rgba(0,0,0,.35); }
   .employer { position: absolute; top: 142px; left: 210px; right: 56px; color: #fff;
-              font-weight: 900; font-size: 52px; line-height: 1.05; text-transform: uppercase;
-              text-shadow: 0 2px 8px rgba(0,0,0,.45); }
+              font-weight: 900; font-size: 52px; line-height: 1.15; text-transform: uppercase;
+              background: rgba(0,0,0,.75); padding: 10px 20px; border-radius: 12px;
+              width: fit-content; max-width: 760px; }
   .card-body { position: absolute; top: 288px; left: 56px; right: 56px; }
   .job-title { background: #FFFFFF;
                color: #0E0E0E; border-radius: 24px; padding: 28px 32px; font-weight: 900;
@@ -41,7 +42,7 @@
   /* Intro headline — sound-off insurance */
   #intro-card { top: 120px; left: 56px; right: 56px; bottom: auto; height: auto; position: absolute; }
   #intro-headline { background: #FFFFFF; color: #0E0E0E; border-radius: 24px;
-                    padding: 36px 40px; font-family: 'Archivo Black', 'Anton', system-ui, sans-serif; font-size: 64px;
+                    padding: 36px 40px; font-family: 'Archivo Black', system-ui, sans-serif; font-size: 64px;
                     line-height: 1.06; box-shadow: 0 8px 40px rgba(0,0,0,.35); }
   #intro-week { display: inline-block; margin-top: 18px; background: #3EE6A0; color: #0E0E0E;
                 font-weight: 900; font-size: 34px; padding: 10px 22px; border-radius: 12px; }
@@ -49,7 +50,7 @@
   /* End card — the only full-screen beat */
   #cta-bg { position: absolute; inset: 0; background: #0E0E0E; }
   #cta-domain { position: absolute; top: 820px; left: 56px; right: 56px; text-align: center;
-                color: #3EE6A0; font-family: 'Archivo Black', 'Anton', system-ui, sans-serif; font-size: 92px; }
+                color: #3EE6A0; font-family: 'Archivo Black', system-ui, sans-serif; font-size: 92px; }
   #cta-line { position: absolute; top: 980px; left: 56px; right: 56px; text-align: center;
               color: #fff; font-weight: 700; font-size: 40px; }
   #cta-next { position: absolute; top: 1070px; left: 56px; right: 56px; text-align: center;
@@ -57,18 +58,18 @@
 </style>
 </head>
 <body>
-  <div id="root" data-composition-id="main" data-start="0" data-width="1080" data-height="1920" data-duration="87">
-    <video id="spine" src="assets/spine.mp4" data-start="0" data-duration="87" data-track-index="0" muted playsinline></video>
-    <audio id="spine-audio" src="assets/spine.mp4" data-start="0" data-duration="87" data-track-index="10" data-volume="1"></audio>
+  <div id="root" data-composition-id="main" data-start="0" data-width="1080" data-height="1920" data-duration="84.61">
+    <video id="spine" src="assets/spine.mp4" data-start="0" data-duration="84.61" data-track-index="0" muted playsinline></video>
+    <audio id="spine-audio" src="assets/spine.mp4" data-start="0" data-duration="84.61" data-track-index="10" data-volume="1"></audio>
 
-    <section id="intro" class="clip" data-start="0" data-duration="4" data-track-index="1">
+    <section id="intro" class="clip" data-start="0" data-duration="9.32" data-track-index="1">
       <div id="intro-card">
         <div id="intro-headline">THE 5 COOLEST JOBS IN GOLF THIS WEEK</div>
         <div id="intro-week">2026-07-23</div>
       </div>
     </section>
 
-    <section id="job-1" class="clip job-card" data-start="4" data-duration="15" data-track-index="1">
+    <section id="job-1" class="clip job-card" data-start="9.32" data-duration="10.560000000000002" data-track-index="1">
       
       <div id="badge-1" class="badge">1</div>
       <div id="emp-1" class="employer">Augusta National Golf Club</div>
@@ -78,7 +79,7 @@
       </div>
     </section>
 
-    <section id="job-2" class="clip job-card" data-start="19" data-duration="15" data-track-index="1">
+    <section id="job-2" class="clip job-card" data-start="19.880000000000003" data-duration="11.899999999999999" data-track-index="1">
       
       <div id="badge-2" class="badge">2</div>
       <div id="emp-2" class="employer">Titleist</div>
@@ -88,7 +89,7 @@
       </div>
     </section>
 
-    <section id="job-3" class="clip job-card" data-start="34" data-duration="15" data-track-index="1">
+    <section id="job-3" class="clip job-card" data-start="31.78" data-duration="12.46" data-track-index="1">
       
       <div id="badge-3" class="badge">3</div>
       <div id="emp-3" class="employer">PGA Tour Superstore</div>
@@ -98,7 +99,7 @@
       </div>
     </section>
 
-    <section id="job-4" class="clip job-card" data-start="49" data-duration="15" data-track-index="1">
+    <section id="job-4" class="clip job-card" data-start="44.24" data-duration="10.673684210526318" data-track-index="1">
       
       <div id="badge-4" class="badge">4</div>
       <div id="emp-4" class="employer">Kiawah Island Golf Resort</div>
@@ -108,7 +109,7 @@
       </div>
     </section>
 
-    <section id="job-5" class="clip job-card" data-start="64" data-duration="18" data-track-index="1">
+    <section id="job-5" class="clip job-card" data-start="54.91368421052632" data-duration="20.486315789473686" data-track-index="1">
       <div id="crown-5" class="crown">COOLEST JOB THIS WEEK</div>
       <div id="badge-5" class="badge badge-gold">5</div>
       <div id="emp-5" class="employer">PGA TOUR</div>
@@ -117,7 +118,7 @@
         <div id="chips-5" class="chips"><span class="chip" id="chip-5-0">Little Rock, AR</span><span class="chip" id="chip-5-1">Operations</span></div>
       </div>
     </section>
-    <section id="cta" class="clip" data-start="82" data-duration="5" data-track-index="1">
+    <section id="cta" class="clip" data-start="75.4" data-duration="9.209999999999994" data-track-index="1">
       <div id="cta-bg"></div>
       <div id="cta-domain">TEEUPJOBS.COM</div>
       <div id="cta-line">Every listing. Direct apply links. Free.</div>
@@ -136,7 +137,8 @@
     tl.from("#intro-headline", { ...POP, y: 40 }, 0.15);
     tl.from("#intro-week", { ...POP }, 0.45);
 
-    const jobStarts = [4,19,34,49,64];
+    const jobStarts = [9.32,19.880000000000003,31.78,44.24,54.91368421052632];
+    const jobDurs = [10.56,11.9,12.46,10.67,20.49];
     const N = 5;
     jobStarts.forEach((t, i) => {
       const k = i + 1;
@@ -145,7 +147,7 @@
       tl.from("#title-" + k, { ...POP, y: 30 }, t + 0.4);
       tl.from("#chips-" + k + " .chip", { ...POP, stagger: 0.07 }, t + 0.6);
       // Idle drift on the title panel across the beat (finite, ease none).
-      tl.to("#title-" + k, { scale: 1.02, duration: 15 - 1, ease: "none" }, t + 0.8);
+      tl.to("#title-" + k, { scale: 1.02, duration: Math.max(1, jobDurs[i] - 1), ease: "none" }, t + 0.8);
       if (k === N) {
         // Winner: rubber-stamp the crown, then a 3-frame shake.
         tl.from("#crown-" + k, { scale: 1.6, opacity: 0, rotation: -8, duration: 0.28, ease: "power4.in" }, t + 0.05);
@@ -154,9 +156,9 @@
     });
 
     // End card.
-    tl.from("#cta-domain", { ...POP, y: 30 }, 82 + 0.15);
-    tl.from("#cta-line", { opacity: 0, y: 20, duration: 0.3, ease: "power3.out" }, 82 + 0.5);
-    tl.from("#cta-next", { opacity: 0, duration: 0.3, ease: "power3.out" }, 82 + 0.8);
+    tl.from("#cta-domain", { ...POP, y: 30 }, 75.4 + 0.15);
+    tl.from("#cta-line", { opacity: 0, y: 20, duration: 0.3, ease: "power3.out" }, 75.4 + 0.5);
+    tl.from("#cta-next", { opacity: 0, duration: 0.3, ease: "power3.out" }, 75.4 + 0.8);
 
     window.__timelines["main"] = tl;
   </script>

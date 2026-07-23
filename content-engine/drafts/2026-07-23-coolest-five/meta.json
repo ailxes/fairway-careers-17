@@ -1,0 +1,22 @@
+{
+  "slug": "2026-07-23-coolest-five",
+  "topic": "coolest-five",
+  "title": "The 5 Coolest Jobs in Golf This Week",
+  "headline": "THE 5 COOLEST JOBS IN GOLF THIS WEEK",
+  "date": "2026-07-23T17:00:00.000Z",
+  "mantraIndex": 2951,
+  "status": "assembled",
+  "assembled": {
+    "duration": 84.61,
+    "jobStarts": [
+      9.32,
+      19.880000000000003,
+      31.78,
+      44.24,
+      54.91368421052632
+    ],
+    "ctaStart": 75.4,
+    "missingAnchors": [],
+    "at": "2026-07-23T19:39:47.574Z"
+  }
+}

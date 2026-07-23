@@ -11,7 +11,7 @@ export const TOKENS = {
   red: "#E8231A",
   ink: "#0E0E0E",
   captionFont: "'Montserrat', 'Inter', system-ui, sans-serif",
-  displayFont: "'Archivo Black', 'Anton', system-ui, sans-serif",
+  displayFont: "'Archivo Black', system-ui, sans-serif",
 };
 
 // Recurring mantras — say ONE per video, verbatim, every time. These are ours

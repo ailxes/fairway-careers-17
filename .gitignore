@@ -36,3 +36,7 @@ scripts/ingest/data/
 .vercel
 
 .env
+
+# content-engine heavy media (recordings + renders stay local)
+content-engine/drafts/*/overlay/assets/spine.*
+content-engine/drafts/*/overlay/renders/
