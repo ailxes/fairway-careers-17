@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TeeUpJobs Studio</title>
+<style>
+  :root { --bg:#0E0E0E; --panel:#181818; --line:#2a2a2a; --mint:#3EE6A0; --gold:#FBBC04; --red:#E8231A; --tx:#f2f2f2; --dim:#9a9a9a; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--tx); font:14px/1.5 'Inter',system-ui,sans-serif; }
+  header { display:flex; align-items:center; gap:14px; padding:14px 20px; border-bottom:1px solid var(--line); }
+  header h1 { font-size:17px; margin:0; letter-spacing:.3px; }
+  header h1 b { color:var(--mint); }
+  .layout { display:grid; grid-template-columns: 300px 1fr; min-height: calc(100vh - 55px); }
+  aside { border-right:1px solid var(--line); padding:14px; }
+  .gen { display:flex; gap:8px; margin-bottom:14px; }
+  select,button,input { background:var(--panel); color:var(--tx); border:1px solid var(--line); border-radius:8px; padding:8px 12px; font:inherit; }
+  button { cursor:pointer; }
+  button.primary { background:var(--mint); color:#0E0E0E; border-color:var(--mint); font-weight:700; }
+  button.gold { background:var(--gold); color:#0E0E0E; border-color:var(--gold); font-weight:700; }
+  .draft { padding:10px 12px; border:1px solid var(--line); border-radius:10px; margin-bottom:8px; cursor:pointer; }
+  .draft:hover, .draft.active { border-color:var(--mint); }
+  .draft .t { font-weight:700; }
+  .pill { display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:99px; margin-left:6px; }
+  .pill.draft { background:#333; }
+  .pill.assembled { background:var(--gold); color:#0E0E0E; }
+  .pill.approved { background:var(--mint); color:#0E0E0E; }
+  main { padding:18px 22px; }
+  .toolbar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+  .toolbar .grow { flex:1; }
+  .tabs { display:flex; gap:6px; margin-bottom:12px; }
+  .tabs button.on { background:var(--mint); color:#0E0E0E; font-weight:700; border-color:var(--mint); }
+  textarea { width:100%; min-height:52vh; background:var(--panel); color:var(--tx); border:1px solid var(--line); border-radius:10px; padding:14px; font:13px/1.6 ui-monospace,monospace; }
+  iframe { width:100%; height:70vh; border:1px solid var(--line); border-radius:10px; background:#000; }
+  .beatbar { display:flex; gap:6px; margin:10px 0; flex-wrap:wrap; }
+  .log { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px; white-space:pre-wrap; font:12px/1.5 ui-monospace,monospace; color:var(--dim); max-height:180px; overflow:auto; }
+  .jobrow { padding:10px 12px; border:1px solid var(--line); border-radius:10px; margin-bottom:8px; }
+  .jobrow b { color:var(--mint); }
+  .muted { color:var(--dim); }
+  a { color:var(--mint); }
+</style>
+</head>
+<body>
+<header><h1>TEEUP<b>JOBS</b> STUDIO</h1><span class="muted">draft → punch up → record → assemble → approve</span></header>
+<div class="layout">
+  <aside>
+    <div class="gen">
+      <select id="topic">
+        <option value="coolest-five">Coolest Five</option>
+        <option value="no-experience">No Experience</option>
+        <option value="high-pay">$80k+</option>
+        <option value="employer-spotlight">Employer Spotlight</option>
+      </select>
+      <button class="primary" onclick="generate()">Generate</button>
+    </div>
+    <div id="list"></div>
+  </aside>
+  <main id="main"><p class="muted">Pick a draft on the left, or generate one.</p></main>
+</div>
+<script>
+let drafts = [], current = null, tab = 'script', dirty = {};
+
+const $ = (s) => document.querySelector(s);
+const api = async (path, opts) => {
+  const r = await fetch(path, opts);
+  const t = await r.text();
+  try { return JSON.parse(t); } catch { return t; }
+};
+
+async function load() {
+  drafts = await api('/api/drafts');
+  $('#list').innerHTML = drafts.map(d => `
+    <div class="draft ${current === d.slug ? 'active' : ''}" onclick="open_('${d.slug}')">
+      <div class="t">${d.meta.title ?? d.slug}</div>
+      <div class="muted">${d.slug}
+        <span class="pill ${d.meta.status ?? 'draft'}">${(d.meta.status ?? 'draft').toUpperCase()}</span>
+        ${d.hasSpine ? '<span class="pill assembled">SPINE ✓</span>' : ''}
+      </div>
+    </div>`).join('') || '<p class="muted">No drafts yet.</p>';
+}
+
+async function open_(slug) {
+  current = slug; tab = 'script'; dirty = {};
+  await render(); await load();
+}
+
+function d() { return drafts.find(x => x.slug === current); }
+
+async function render() {
+  const info = d(); if (!info) return;
+  const meta = info.meta;
+  $('#main').innerHTML = `
+    <div class="toolbar">
+      <h2 style="margin:0;font-size:16px">${meta.title ?? current}</h2>
+      <span class="pill ${meta.status ?? 'draft'}">${(meta.status ?? 'draft').toUpperCase()}</span>
+      <span class="grow"></span>
+      <label class="muted">spine.mp4 <input type="file" id="spine" accept="video/mp4" onchange="uploadSpine(event)"></label>
+      <button class="gold" onclick="assemble()">Assemble (sync beats)</button>
+      <button class="primary" onclick="setStatus('approved')">Approve</button>
+    </div>
+    <div class="tabs">
+      ${['script','caption','jobs','overlay'].map(t => `<button class="${tab === t ? 'on' : ''}" onclick="setTab('${t}')">${t.toUpperCase()}</button>`).join('')}
+    </div>
+    <div id="tabbody"></div>
+    <div id="log" class="log" style="display:none;margin-top:12px"></div>`;
+  await renderTab();
+}
+
+async function setTab(t) { tab = t; await render(); }
+
+async function renderTab() {
+  const el = $('#tabbody');
+  if (tab === 'script' || tab === 'caption') {
+    const name = tab === 'script' ? 'script.md' : 'caption.txt';
+    const content = dirty[name] ?? await api(`/api/draft/${current}/file?name=${name}`);
+    el.innerHTML = `
+      <textarea id="editor">${String(content).replace(/</g,'&lt;')}</textarea>
+      <div style="margin-top:8px;display:flex;gap:8px">
+        <button class="primary" onclick="save('${name}')">Save ${name}</button>
+        <span class="muted" id="savemsg"></span>
+      </div>`;
+    $('#editor').addEventListener('input', () => dirty[name] = $('#editor').value);
+  } else if (tab === 'jobs') {
+    const jobs = JSON.parse(await api(`/api/draft/${current}/file?name=jobs.json`));
+    el.innerHTML = jobs.map((j, i) => `
+      <div class="jobrow"><b>${i + 1}${i === jobs.length - 1 ? ' — WINNER' : ''}</b> ${j.employer} — ${j.title}
+        <div class="muted">${[j.location, j.role_category, j.comp_notes].filter(Boolean).join(' · ')} · score ${j.cool_score}
+          · <a href="${j.apply_url ?? j.source_url}" target="_blank">apply link</a></div>
+      </div>`).join('');
+  } else if (tab === 'overlay') {
+    const beats = ['intro', 1, 2, 3, 4, 5, 'cta'];
+    el.innerHTML = `
+      <div class="beatbar">${beats.map(b => `<button onclick="seekBeat('${b}')">${b === 'intro' ? 'INTRO' : b === 'cta' ? 'CTA' : 'JOB ' + b}</button>`).join('')}
+        <button onclick="showAll()">RESET</button></div>
+      <iframe id="ov" src="/drafts/${current}/overlay/index.html"></iframe>`;
+  }
+}
+
+function ovwin() { return $('#ov').contentWindow; }
+function seekBeat(b) {
+  const w = ovwin(), doc = w.document;
+  doc.querySelectorAll('.clip').forEach(el => el.style.display = 'none');
+  const id = b === 'intro' ? 'intro' : b === 'cta' ? 'cta' : 'job-' + b;
+  const el = doc.getElementById(id); if (!el) return;
+  el.style.display = 'block';
+  const tl = w.__timelines && w.__timelines['main'];
+  const start = parseFloat(el.getAttribute('data-start')), dur = parseFloat(el.getAttribute('data-duration'));
+  if (tl) tl.seek(Math.min(start + Math.max(1.2, dur / 3), tl.duration() - 0.01));
+  const root = doc.getElementById('root');
+  const scale = Math.min(($('#ov').clientHeight - 20) / 1920, ($('#ov').clientWidth - 20) / 1080);
+  root.style.transform = `scale(${scale})`; root.style.transformOrigin = 'top left';
+}
+function showAll() { ovwin().location.reload(); }
+
+async function save(name) {
+  await api(`/api/draft/${current}/file`, { method: 'PUT', body: JSON.stringify({ name, content: dirty[name] ?? $('#editor').value }) });
+  delete dirty[name];
+  $('#savemsg').textContent = 'saved ✓'; setTimeout(() => $('#savemsg').textContent = '', 1500);
+}
+
+async function uploadSpine(ev) {
+  const f = ev.target.files[0]; if (!f) return;
+  logmsg(`Uploading ${f.name} (${(f.size / 1e6).toFixed(1)} MB)...`);
+  const r = await fetch(`/api/draft/${current}/spine`, { method: 'POST', body: f });
+  logmsg(`Spine uploaded (${JSON.stringify(await r.json())}). Now hit Assemble.`);
+  await load();
+}
+
+async function assemble() {
+  logmsg('Assembling (transcribe + beat sync)... this takes a minute.');
+  const r = await api(`/api/draft/${current}/assemble`, { method: 'POST' });
+  logmsg(r.out ?? JSON.stringify(r));
+  await load(); if (tab === 'overlay') await renderTab();
+}
+
+async function setStatus(s) {
+  await api(`/api/draft/${current}/status`, { method: 'POST', body: JSON.stringify({ status: s }) });
+  await load(); await render();
+}
+
+async function generate() {
+  logmsgGlobal('Generating draft...');
+  const r = await api('/api/generate', { method: 'POST', body: JSON.stringify({ topic: $('#topic').value }) });
+  await load();
+  const newest = drafts[0]; if (newest) await open_(newest.slug);
+  logmsg(r.out ?? '');
+}
+
+function logmsg(t) { const el = $('#log'); if (!el) return alert(t); el.style.display = 'block'; el.textContent = t; }
+function logmsgGlobal(t) { console.log(t); }
+
+load();
+</script>
+</body>
+</html>

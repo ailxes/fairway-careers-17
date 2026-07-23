@@ -143,7 +143,8 @@ export function buildScript({ topic, jobs, date, mantraIndex = 0 }) {
   lines.push(`- [ ] One device per job, none repeated more than twice`);
   lines.push(`- [ ] Mantra said verbatim`);
   lines.push(`- [ ] No em dashes anywhere in caption, no promised outcomes or timeframes`);
-  lines.push(`- [ ] Record horizontal framing consistent with template 10 (face never cropped, captions never over mouth)`);
+  lines.push(`- [ ] Record VERTICAL (portrait), eye level, face in the lower two-thirds (top third belongs to the job cards)`);
+  lines.push(`- [ ] Say the beat markers exactly as written ("First up", "Number two"...) so the assembler can sync overlays`);
 
   return lines.join("\n");
 }

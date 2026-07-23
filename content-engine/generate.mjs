@@ -93,7 +93,16 @@ const slug = `${now.toISOString().slice(0, 10)}-${topic.slug}`;
 const out = resolve(here, "drafts", slug);
 mkdirSync(resolve(out, "overlay/assets"), { recursive: true });
 
-writeFileSync(resolve(out, "script.md"), buildScript({ topic: effectiveTopic, jobs: display, date: now, mantraIndex: Math.floor(now.getTime() / 604800000) }));
+const mantraIndex = Math.floor(now.getTime() / 604800000);
+writeFileSync(
+  resolve(out, "meta.json"),
+  JSON.stringify(
+    { slug, topic: topicKey, title: effectiveTopic.title, headline: effectiveTopic.headline, date: now.toISOString(), mantraIndex, status: "draft" },
+    null,
+    2,
+  ),
+);
+writeFileSync(resolve(out, "script.md"), buildScript({ topic: effectiveTopic, jobs: display, date: now, mantraIndex }));
 writeFileSync(resolve(out, "caption.txt"), buildCaption({ topic: effectiveTopic, jobs: display, date: now }));
 writeFileSync(resolve(out, "jobs.json"), JSON.stringify(picked, null, 2));
 writeFileSync(resolve(out, "overlay/index.html"), buildOverlayHtml({ topic: effectiveTopic, jobs: display, date: now }));

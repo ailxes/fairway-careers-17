@@ -23,17 +23,20 @@ function compChip(job) {
   return job.comp_notes ?? null;
 }
 
-export function buildOverlayHtml({ topic, jobs, date }) {
+export function buildOverlayHtml({ topic, jobs, date, starts: startsIn, duration: durationIn }) {
   const n = jobs.length;
-  const starts = beatStarts(n);
-  const duration = totalDuration(n);
+  const starts = startsIn ?? beatStarts(n);
+  const duration = durationIn ?? totalDuration(n);
   const nextDay = date.getDay() === 1 ? "FRIDAY" : "MONDAY";
+  // Per-beat durations from the (possibly recording-synced) start times.
+  const jobDur = starts.jobs.map((t, i) => (i < n - 1 ? starts.jobs[i + 1] : starts.cta) - t);
+  const ctaDur = Math.max(2, duration - starts.cta);
 
   const jobClips = jobs
     .map((job, i) => {
       const isWinner = i === n - 1;
       const start = starts.jobs[i];
-      const dur = isWinner ? BEAT_TIMING.winner : BEAT_TIMING.job;
+      const dur = jobDur[i];
       const chips = [job.location, compChip(job), job.role_category].filter(Boolean);
       return `
     <section id="job-${i + 1}" class="clip job-card" data-start="${start}" data-duration="${dur}" data-track-index="1">
@@ -111,14 +114,14 @@ export function buildOverlayHtml({ topic, jobs, date }) {
     <video id="spine" src="assets/spine.mp4" data-start="0" data-duration="${duration}" data-track-index="0" muted playsinline></video>
     <audio id="spine-audio" src="assets/spine.mp4" data-start="0" data-duration="${duration}" data-track-index="10" data-volume="1"></audio>
 
-    <section id="intro" class="clip" data-start="0" data-duration="${BEAT_TIMING.intro}" data-track-index="1">
+    <section id="intro" class="clip" data-start="0" data-duration="${starts.jobs[0]}" data-track-index="1">
       <div id="intro-card">
         <div id="intro-headline">${esc(topic.headline)}</div>
         <div id="intro-week">${date.toISOString().slice(0, 10)}</div>
       </div>
     </section>
 ${jobClips}
-    <section id="cta" class="clip" data-start="${starts.cta}" data-duration="${BEAT_TIMING.cta}" data-track-index="1">
+    <section id="cta" class="clip" data-start="${starts.cta}" data-duration="${ctaDur}" data-track-index="1">
       <div id="cta-bg"></div>
       <div id="cta-domain">${CTA_DOMAIN.toUpperCase()}</div>
       <div id="cta-line">Every listing. Direct apply links. Free.</div>
@@ -138,6 +141,7 @@ ${jobClips}
     tl.from("#intro-week", { ...POP }, 0.45);
 
     const jobStarts = ${JSON.stringify(starts.jobs)};
+    const jobDurs = ${JSON.stringify(jobDur.map((d) => +d.toFixed(2)))};
     const N = ${n};
     jobStarts.forEach((t, i) => {
       const k = i + 1;
@@ -146,7 +150,7 @@ ${jobClips}
       tl.from("#title-" + k, { ...POP, y: 30 }, t + 0.4);
       tl.from("#chips-" + k + " .chip", { ...POP, stagger: 0.07 }, t + 0.6);
       // Idle drift on the title panel across the beat (finite, ease none).
-      tl.to("#title-" + k, { scale: 1.02, duration: ${BEAT_TIMING.job} - 1, ease: "none" }, t + 0.8);
+      tl.to("#title-" + k, { scale: 1.02, duration: Math.max(1, jobDurs[i] - 1), ease: "none" }, t + 0.8);
       if (k === N) {
         // Winner: rubber-stamp the crown, then a 3-frame shake.
         tl.from("#crown-" + k, { scale: 1.6, opacity: 0, rotation: -8, duration: 0.28, ease: "power4.in" }, t + 0.05);
