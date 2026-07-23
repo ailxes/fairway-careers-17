@@ -20,14 +20,14 @@ const searchSchema = z.object({
   sort: z.enum(["newest", "cool", "pay"]).optional(),
 });
 
-export const Route = createFileRoute("/jobs")({
+export const Route = createFileRoute("/jobs/")({
   validateSearch: searchSchema,
   component: JobsPage,
 });
 
 function JobsPage() {
   const search = Route.useSearch();
-  const navigate = useNavigate({ from: "/jobs" });
+  const navigate = useNavigate({ from: "/jobs/" });
   const { data: jobs = [], isLoading } = useQuery({
     queryKey: ["jobs-live"],
     queryFn: fetchLiveJobs,
